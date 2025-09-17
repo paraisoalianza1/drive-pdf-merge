@@ -192,7 +192,9 @@ def process_folder(drive, folder_id: str) -> Optional[dict]:
             local_paths.append(dest)
 
         # 6) Hacer el merge local
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+        # Fecha 
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+        # Nombre solicitado
         merged_name = f"Compilado__{folder_name}__{timestamp}.pdf"
         merged_path = os.path.join(tmp, merged_name)
         merge_local_pdfs(local_paths, merged_path)
