@@ -25,13 +25,15 @@ from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 # --------- Configuración general por variables de entorno (vienen del workflow) ---------
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
-SCOPES = ["https://www.googleapis.com/auth/drive"]  # Permiso de lectura/escritura/papelera
-GOOGLE_CREDENTIALS = os.environ["GOOGLE_CREDENTIALS"]       # JSON de Service Account (string)
-FOLDER_IDS = json.loads(os.environ["FOLDER_IDS"])           # Lista JSON: ["idCarpeta1", "idCarpeta2", ...]
-MIN_PDFS = int(os.getenv("MIN_PDFS", "1"))                  # Mínimo de PDFs para hacer merge
-DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"   # true => simula (no sube/ no manda a papelera)
+SCOPES = ["https://www.googleapis.com/auth/drive"]  # lectura/escritura/papelera
 
-# Nombre de la subcarpeta donde guardamos el compilado por cada carpeta fuente
+# <<< MODO DE AUTENTICACIÓN >>>
+AUTH_MODE = os.getenv("AUTH_MODE", "oauth").lower()   # "oauth" por defecto
+
+# Estas sí las usamos siempre
+FOLDER_IDS = json.loads(os.environ["FOLDER_IDS"])           # ["id1","id2",...]
+MIN_PDFS = int(os.getenv("MIN_PDFS", "2"))
+DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
 COMPILED_SUBFOLDER_NAME = os.getenv("COMPILED_SUBFOLDER_NAME", "Compilados").strip() or "Compilados"
 
 
