@@ -37,3 +37,41 @@ jobs:
           COMPILED_SUBFOLDER_NAME: "Compilados"                  # Puedes renombrarla si quieres
         run: |
           python src/merge_pdfs.py
+            # Guardamos log en archivo para adjuntarlo en el correo
+            python src/merge_pdfs.py | tee run.log
+      - name: Upload run log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merge-log
+          path: run.log
+
+  notify_email:
+    needs: merge
+    if: failure()             # <— Solo cuando el job 'merge' falla
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: merge-log
+          path: .
+
+      - name: Send failure email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.ALERT_EMAIL_USER }}
+          password: ${{ secrets.ALERT_EMAIL_PASS }}
+          subject: "❌ Falló el Merge PDFs – ${{ github.repository }} #${{ github.run_number }}"
+          from: "GitHub Actions <${{ secrets.ALERT_EMAIL_USER }}>"
+          to: "tucorreo@gmail.com"
+          body: |
+            Hola Andrés,
+            El workflow falló: ${{ github.workflow }} (run #${{ github.run_number }})
+            Repo: ${{ github.repository }}
+            Rama: ${{ github.ref_name }}
+            Revisa el log adjunto o entra aquí:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          attachments: run.log
