@@ -3,10 +3,9 @@ name: Merge PDFs from Drive (por carpeta, a 'Compilados')
 on:
   schedule:
     # GitHub Actions corre en UTC.
-    # 08:05 UTC = 03:05 a. m. Bogotá (UTC-5)
-    - cron: "5 8 * * *"
-  workflow_dispatch: {}  # Permite ejecutarlo manualmente cuando quieras
-
+    # 11:00 UTC = 06:00 a. m. Bogotá (UTC-5), todos los lunes
+    - cron: "0 11 * * 1"
+  workflow_dispatch: {}  # deja esto para poder ejecutarlo manualmente
 jobs:
   merge:
     runs-on: ubuntu-latest
