@@ -1,0 +1,37 @@
+name: Merge PDFs from Drive (por carpeta, a 'Compilados')
+
+on:
+  schedule:
+    # GitHub Actions corre en UTC.
+    # 08:05 UTC = 03:05 a. m. Bogotá (UTC-5)
+    - cron: "5 8 * * *"
+  workflow_dispatch: {}  # Permite ejecutarlo manualmente cuando quieras
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run merge
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}  # JSON del SA (todo el contenido)
+          FOLDER_IDS: ${{ secrets.FOLDER_IDS }}                  # ["id1","id2",...]
+          MIN_PDFS: "2"                                          # Cambia si quieres
+          DRY_RUN: "false"                                       # Pon "true" para pruebas
+          COMPILED_SUBFOLDER_NAME: "Compilados"                  # Puedes renombrarla si quieres
+        run: |
+          python src/merge_pdfs.py
