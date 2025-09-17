@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(mes
 SCOPES = ["https://www.googleapis.com/auth/drive"]  # Permiso de lectura/escritura/papelera
 GOOGLE_CREDENTIALS = os.environ["GOOGLE_CREDENTIALS"]       # JSON de Service Account (string)
 FOLDER_IDS = json.loads(os.environ["FOLDER_IDS"])           # Lista JSON: ["idCarpeta1", "idCarpeta2", ...]
-MIN_PDFS = int(os.getenv("MIN_PDFS", "2"))                  # Mínimo de PDFs para hacer merge
+MIN_PDFS = int(os.getenv("MIN_PDFS", "1"))                  # Mínimo de PDFs para hacer merge
 DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"   # true => simula (no sube/ no manda a papelera)
 
 # Nombre de la subcarpeta donde guardamos el compilado por cada carpeta fuente
