@@ -39,11 +39,35 @@ COMPILED_SUBFOLDER_NAME = os.getenv("COMPILED_SUBFOLDER_NAME", "Compilados").str
 
 # --------- Utilidades de Google Drive ---------
 def drive_client():
-    """Crea un cliente autenticado de la API de Drive usando Service Account."""
-    info = json.loads(GOOGLE_CREDENTIALS)
+    """
+    Crea cliente Drive según AUTH_MODE:
+      - "oauth": usa TU cuenta (almacenamiento de tu Drive)
+      - "service_account": usa Service Account (solo útil si trabajas en Unidad compartida)
+    """
+    if AUTH_MODE == "oauth":
+        from google.oauth2.credentials import Credentials
+        from google.auth.transport.requests import Request
+
+        client_id = os.environ["GOOGLE_CLIENT_ID"]
+        client_secret = os.environ["GOOGLE_CLIENT_SECRET"]
+        refresh_token = os.environ["GOOGLE_REFRESH_TOKEN"]
+
+        creds = Credentials(
+            None,
+            refresh_token=refresh_token,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=client_id,
+            client_secret=client_secret,
+            scopes=SCOPES,
+        )
+        creds.refresh(Request())  # cambia el refresh token por un access token válido
+        return build("drive", "v3", credentials=creds, cache_discovery=False)
+
+    # Rama opcional por si algún día vuelves a Service Account (Unidad compartida)
+    info = json.loads(os.environ["GOOGLE_CREDENTIALS"])
     creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
-    # cache_discovery=False evita warnings de caché en Actions
     return build("drive", "v3", credentials=creds, cache_discovery=False)
+
 
 
 def get_folder_name(drive, folder_id: str) -> str:
