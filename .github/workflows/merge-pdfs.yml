@@ -27,9 +27,12 @@ jobs:
 
       - name: Run merge
         env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}  # JSON del SA (todo el contenido)
+          AUTH_MODE: oauth
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
           FOLDER_IDS: ${{ secrets.FOLDER_IDS }}                  # ["id1","id2",...]
-          MIN_PDFS: "2"                                          # Cambia si quieres
+          MIN_PDFS: "1"                                          # Cambia si quieres
           DRY_RUN: "false"                                       # Pon "true" para pruebas
           COMPILED_SUBFOLDER_NAME: "Compilados"                  # Puedes renombrarla si quieres
         run: |
