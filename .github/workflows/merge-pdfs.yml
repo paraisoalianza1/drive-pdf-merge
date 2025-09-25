@@ -2,10 +2,10 @@ name: Merge PDFs from Drive (por carpeta, a 'Compilados')
 
 on:
   schedule:
-    # GitHub Actions corre en UTC.
     # 11:00 UTC = 06:00 a. m. Bogotá (UTC-5), todos los lunes
-    - cron: "0 11 * * 1"
-  workflow_dispatch: {}  # deja esto para poder ejecutarlo manualmente
+    - cron: "0 8 * * 1"
+  workflow_dispatch: {}  # también permite ejecutarlo manualmente
+
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -25,20 +25,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 👇 Compresor PDF
+      - name: Install Ghostscript
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ghostscript
+
       - name: Run merge
         env:
           AUTH_MODE: oauth
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
-          FOLDER_IDS: ${{ secrets.FOLDER_IDS }}                  # ["id1","id2",...]
-          MIN_PDFS: "1"                                          # Cambia si quieres
-          DRY_RUN: "false"                                       # Pon "true" para pruebas
-          COMPILED_SUBFOLDER_NAME: "Compilados"                  # Puedes renombrarla si quieres
+          FOLDER_IDS: ${{ secrets.FOLDER_IDS }}          # ["id1","id2",...]
+          MIN_PDFS: "1"                                  # tú lo dejaste en 1; cámbialo si quieres
+          DRY_RUN: "false"                               # "true" para pruebas
+          COMPILED_SUBFOLDER_NAME: "Compilados"
+          # 👇 Flags de compresión (requiere las funciones en merge_pdfs.py)
+          PDF_COMPRESS: "true"                           # pon "false" para desactivar
+          PDF_QUALITY: "screen"                           # screen | ebook | printer | prepress | default
         run: |
-          python src/merge_pdfs.py
-            # Guardamos log en archivo para adjuntarlo en el correo
-            python src/merge_pdfs.py | tee run.log
+          # Ejecuta y guarda el log para adjuntarlo si falla
+          python src/merge_pdfs.py | tee run.log
+
       - name: Upload run log
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,7 +57,7 @@ jobs:
 
   notify_email:
     needs: merge
-    if: failure()             # <— Solo cuando el job 'merge' falla
+    if: failure()             # Solo cuando el job 'merge' falla
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
