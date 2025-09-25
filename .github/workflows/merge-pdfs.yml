@@ -3,7 +3,7 @@ name: Merge PDFs from Drive (por carpeta, a 'Compilados')
 on:
   schedule:
     # 11:00 UTC = 06:00 a. m. Bogotá (UTC-5), todos los lunes
-    - cron: "0 8 * * 1"
+    - cron: "0 13 * * 1"
   workflow_dispatch: {}  # también permite ejecutarlo manualmente
 
 jobs:
